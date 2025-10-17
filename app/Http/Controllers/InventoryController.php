@@ -62,25 +62,29 @@ class InventoryController extends Controller
     {
         return view('inventories.scan'); // scan.blade.php
     }
-    public function scanSubmit(Request $request)
+public function scanSubmit(Request $request)
 {
+    // ✅ Validasi format barcode INV-XXXXXXX (huruf besar & angka)
     $request->validate([
-        'barcode' => 'required|string'
+        'barcode' => ['required', 'regex:/^INV-[A-Z0-9]+$/']
     ]);
 
     $barcode = $request->barcode;
 
+    // ✅ Cari data berdasarkan barcode
     $inventory = Inventory::where('barcode', $barcode)->first();
 
     if ($inventory) {
-        // Jika barang ditemukan, redirect ke halaman detail
-        return redirect()->route('inventories.show', $inventory->id);
+        // ✅ Redirect ke halaman detail barang
+        return redirect()->route('inventories.show', $inventory->id)
+                         ->with('success', 'Barang ditemukan: ' . $inventory->nama_barang);
     } else {
-        // Jika tidak ditemukan, kembali ke halaman scan dengan pesan error
+        // ❌ Jika tidak ditemukan
         return redirect()->route('inventories.scan')
-                         ->with('error', 'Barang dengan barcode ' . $barcode . ' tidak ditemukan!');
+                         ->with('error', 'Barang dengan barcode ' . $barcode . ' tidak ditemukan di database.');
     }
 }
+
 
     public function showByBarcode($barcode)
 {
