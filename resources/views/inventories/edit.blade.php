@@ -1,98 +1,101 @@
 @extends('layouts.sbadmin')
 
+@section('title', 'Edit Barang')
+
 @section('content')
-<div class="container">
-  <h1 class="h3 mb-4 text-gray-800">Edit Barang</h1>
+<div class="container mt-4">
+    <h3>Edit Barang</h3>
 
-  <form action="{{ route('inventories.update', $inventory->id) }}" method="POST" enctype="multipart/form-data">
-    @csrf
-    @method('PUT')
+    {{-- Tampilkan error validasi jika ada --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    <div class="form-group">
-      <label>Nama Barang</label>
-      <input type="text" name="nama_barang" class="form-control" value="{{ $inventory->nama_barang }}" required>
-    </div>
+    <form action="{{ route('inventories.update', $inventory->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
 
-    <div class="form-group">
-      <label>Kategori</label>
-      <input type="text" name="kategori" class="form-control" value="{{ $inventory->kategori }}" required>
-    </div>
+        <div class="mb-3">
+            <label>Nama Barang</label>
+            <input type="text" name="nama_barang" value="{{ old('nama_barang', $inventory->nama_barang) }}" class="form-control" required>
+        </div>
 
-    <div class="form-group">
-      <label>Merk</label>
-      <input type="text" name="merk" class="form-control" value="{{ $inventory->merk }}">
-    </div>
+        <div class="mb-3">
+            <label>Kategori</label>
+            <input type="text" name="kategori" value="{{ old('kategori', $inventory->kategori) }}" class="form-control" required>
+        </div>
 
-    <div class="form-group">
-      <label>Serial Number</label>
-      <input type="text" name="serial_number" class="form-control" value="{{ $inventory->serial_number }}">
-    </div>
+        <div class="mb-3">
+            <label>Merk</label>
+            <input type="text" name="merk" value="{{ old('merk', $inventory->merk) }}" class="form-control">
+        </div>
 
-    <div class="form-group">
-      <label>Tipe Barang</label>
-      <select name="tipe_barang" class="form-control" required>
-        <option value="Consumable" @if($inventory->tipe_barang == 'Consumable') selected @endif>Consumable</option>
-        <option value="Non-Consumable" @if($inventory->tipe_barang == 'Non-Consumable') selected @endif>Non-Consumable</option>
-      </select>
-    </div>
+        <div class="mb-3">
+            <label>Serial Number</label>
+            <input type="text" name="serial_number" value="{{ old('serial_number', $inventory->serial_number) }}" class="form-control">
+        </div>
 
-    <div class="form-group">
-      <label>Jumlah</label>
-      <input type="number" name="jumlah" class="form-control" value="{{ $inventory->jumlah }}" required>
-    </div>
+        {{-- ✅ ENUM: Tipe Barang --}}
+        <div class="mb-3">
+            <label>Tipe Barang</label>
+            <select name="tipe_barang" class="form-control" required>
+                <option value="consumable" {{ $inventory->tipe_barang == 'consumable' ? 'selected' : '' }}>Consumable (Habis Pakai)</option>
+                <option value="non-consumable" {{ $inventory->tipe_barang == 'non-consumable' ? 'selected' : '' }}>Non-Consumable (Tidak Habis Pakai)</option>
+            </select>
+        </div>
 
-    <div class="form-group">
-      <label>Tanggal Masuk</label>
-      <input type="date" name="tanggal_masuk" class="form-control" value="{{ $inventory->tanggal_masuk->format('Y-m-d') }}" required>
-    </div>
+        <div class="mb-3">
+            <label>Jumlah</label>
+            <input type="number" name="jumlah" value="{{ old('jumlah', $inventory->jumlah) }}" class="form-control" required min="1">
+        </div>
 
-    <div class="form-group">
-      <label>PO Number</label>
-      <input type="text" name="po_number" class="form-control" value="{{ $inventory->po_number }}">
-    </div>
+        <div class="mb-3">
+            <label>Tanggal Masuk</label>
+            <input type="date" name="tanggal_masuk" value="{{ old('tanggal_masuk', \Carbon\Carbon::parse($inventory->tanggal_masuk)->format('Y-m-d')) }}" class="form-control" required>
+        </div>
 
-    <div class="form-group">
-      <label>Lokasi</label>
-      <input type="text" name="lokasi" class="form-control" value="{{ $inventory->lokasi }}">
-    </div>
+        <div class="mb-3">
+            <label>PO Number</label>
+            <input type="text" name="po_number" value="{{ old('po_number', $inventory->po_number) }}" class="form-control">
+        </div>
 
-    <div class="form-group">
-      <label>Status</label>
-      <select name="status" class="form-control">
-        <option value="OK" @if($inventory->status == 'OK') selected @endif>OK</option>
-        <option value="Rusak" @if($inventory->status == 'Rusak') selected @endif>Rusak</option>
-        <option value="Hilang" @if($inventory->status == 'Hilang') selected @endif>Hilang</option>
-      </select>
-    </div>
+        <div class="mb-3">
+            <label>Lokasi</label>
+            <input type="text" name="lokasi" value="{{ old('lokasi', $inventory->lokasi) }}" class="form-control">
+        </div>
 
-    {{-- ✅ Bagian Upload Gambar dengan Preview --}}
-    <div class="form-group">
-      <label>Upload Gambar (opsional)</label>
-      @if($inventory->gambar)
-      <div class="mb-2">
-        <img src="{{ asset('storage/'.$inventory->gambar) }}" width="100" alt="Gambar Lama">
-      </div>
-      @endif
-      <input type="file" name="gambar" class="form-control-file" id="previewImage">
-      <img id="imagePreview" src="#" alt="Preview Gambar Baru" class="mt-2" width="120" style="display:none;">
-    </div>
+        {{-- ✅ ENUM: Status --}}
+       <div class="mb-3">
+    <label>Status</label>
+  <select name="status" class="form-select" required>
+    <option value="">-- Pilih Status --</option>
+    <option value="ok" {{ old('status', $inventory->status ?? '') == 'ok' ? 'selected' : '' }}>OK</option>
+    <option value="rusak" {{ old('status', $inventory->status ?? '') == 'rusak' ? 'selected' : '' }}>Rusak</option>
+    <option value="hilang" {{ old('status', $inventory->status ?? '') == 'hilang' ? 'selected' : '' }}>Hilang</option>
+    <option value="dipakai" {{ old('status', $inventory->status ?? '') == 'dipakai' ? 'selected' : '' }}>Dipakai</option>
+    <option value="baru" {{ old('status', $inventory->status ?? '') == 'baru' ? 'selected' : '' }}>Baru</option>
+</select>
 
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a href="{{ route('inventories.index') }}" class="btn btn-secondary">Kembali</a>
-  </form>
 </div>
 
-{{-- ✅ Script Preview --}}
-<script>
-document.getElementById('previewImage').addEventListener('change', function(e) {
-    const reader = new FileReader();
-    reader.onload = function(){
-        const preview = document.getElementById('imagePreview');
-        preview.src = reader.result;
-        preview.style.display = 'block';
-    }
-    reader.readAsDataURL(e.target.files[0]);
-});
-</script>
+        <div class="mb-3">
+            <label>Gambar</label>
+            <input type="file" name="gambar" class="form-control" accept="image/*">
+            @if($inventory->gambar)
+                <div class="mt-2">
+                    <img src="{{ asset('storage/' . $inventory->gambar) }}" width="100" class="rounded border">
+                </div>
+            @endif
+        </div>
 
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="{{ route('inventories.index') }}" class="btn btn-secondary">Batal</a>
+    </form>
+</div>
 @endsection

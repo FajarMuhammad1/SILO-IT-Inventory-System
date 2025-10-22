@@ -9,9 +9,10 @@ return new class extends Migration {
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('aksi');
-            $table->text('deskripsi')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // relasi ke tabel users
+            $table->string('activity'); // aktivitas yang dilakukan
+            $table->string('ip_address')->nullable();
+            $table->string('user_agent')->nullable();
             $table->timestamps();
         });
     }

@@ -1,7 +1,7 @@
 <footer class="sticky-footer bg-white">
     <div class="container my-auto">
-        <div class="copyright text-center my-auto">
-            <span>© 2025 IT Inventory System - All Rights Reserved</span>
+        <div class="text-center my-auto text-gray-600 small">
+            © {{ date('Y') }} IT Inventory System — All Rights Reserved
         </div>
     </div>
 </footer>

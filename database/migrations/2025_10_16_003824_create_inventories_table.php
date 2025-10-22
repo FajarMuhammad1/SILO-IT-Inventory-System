@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->date('tanggal_masuk')->nullable();
             $table->string('po_number')->nullable();
             $table->string('lokasi')->nullable();
-            $table->enum('status', ['ok', 'rusak', 'hilang', 'dipakai'])->default('ok');
+            $table->enum('status', ['ok', 'rusak', 'hilang', 'dipakai','baru'])->default('ok');
             $table->string('barcode')->unique();
             $table->string('gambar')->nullable();
             $table->timestamps();

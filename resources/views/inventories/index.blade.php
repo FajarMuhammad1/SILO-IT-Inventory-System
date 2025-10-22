@@ -1,94 +1,59 @@
 @extends('layouts.sbadmin')
 
+
+@section('title', 'Daftar Barang')
+
 @section('content')
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-  <h1 class="h3 mb-0 text-gray-800">Data Inventaris IT</h1>
-  <a href="{{ route('inventories.create') }}" class="btn btn-primary">
-    <i class="fas fa-plus"></i> Tambah Barang
-  </a>
-</div>
+<div class="container mt-4">
+    <h3>Daftar Barang</h3>
 
-@if (session('success'))
-<div class="alert alert-success">
-  {{ session('success') }}
-</div>
-@endif
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-<div class="card shadow mb-4">
-  <div class="card-header py-3 d-flex justify-content-between align-items-center">
-    <h6 class="m-0 font-weight-bold text-primary">Daftar Barang</h6>
-    <a href="{{ route('inventories.scan') }}" class="btn btn-success">
-      <i class="fas fa-barcode"></i> Scan Barcode
-    </a>
-  </div>
+    <a href="{{ route('inventories.create') }}" class="btn btn-success mb-3">Tambah Barang</a>
+    <a href="{{ route('inventories.scan') }}" class="btn btn-info mb-3">Scan Barcode</a>
 
-  <div class="card-body">
-    <div class="table-responsive">
-      <table class="table table-bordered" width="100%" cellspacing="0">
-        <thead class="thead-light">
-          <tr>
-            <th>No</th>
-            <th>Nama Barang</th>
-            <th>Kategori</th>
-            <th>Merk</th>
-            <th>Tipe</th>
-            <th>Jumlah</th>
-            <th>Status</th>
-            <th>Barcode</th>
-            <th>Aksi</th>
-          </tr>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Barang</th>
+                <th>Kategori</th>
+                <th>Tipe</th>
+                <th>Jumlah</th>
+                <th>Barcode</th>
+                <th>Aksi</th>
+            </tr>
         </thead>
         <tbody>
-          @foreach ($inventories as $index => $item)
-          <tr>
-            <td>{{ $index + $inventories->firstItem() }}</td>
-            <td>{{ $item->nama_barang }}</td>
-            <td>{{ $item->kategori }}</td>
-            <td>{{ $item->merk }}</td>
-            <td>{{ $item->tipe_barang }}</td>
-            <td>{{ $item->jumlah }}</td>
-            <td>
-              <span class="badge
-                @if($item->status == 'OK') badge-success
-                @elseif($item->status == 'Rusak') badge-danger
-                @else badge-warning @endif">
-                {{ $item->status }}
-              </span>
-            </td>
-            <td>
-              @if($item->barcode)
-                {!! DNS1D::getBarcodeHTML($item->barcode, 'C39', 1.5, 40) !!}
-                <div class="small text-center mt-1">{{ $item->barcode }}</div>
-              @else
-                <span class="text-muted">Belum ada</span>
-              @endif
-            </td>
-            <td>
-              <a href="{{ route('inventories.show', $item->id) }}" class="btn btn-sm btn-info">
-                  <i class="fas fa-eye"></i>
-              </a>
-
-              <a href="{{ route('inventories.edit', $item->id) }}" class="btn btn-sm btn-warning">
-                  <i class="fas fa-edit"></i>
-              </a>
-
-              <form action="{{ route('inventories.destroy', $item->id) }}" method="POST" class="d-inline">
-                  @csrf
-                  @method('DELETE')
-                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')">
-                  <i class="fas fa-trash"></i>
-                  </button>
-              </form>
-            </td>
-          </tr>
-          @endforeach
+            @forelse($inventories as $item)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $item->nama_barang }}</td>
+                    <td>{{ $item->kategori }}</td>
+                    <td>{{ $item->tipe_barang }}</td>
+                    <td>{{ $item->jumlah }}</td>
+                    <td>{{ $item->barcode }}</td>
+                    <td>
+                        <a href="{{ route('inventories.show', $item->id) }}" class="btn btn-primary btn-sm">Detail</a>
+                        <a href="{{ route('inventories.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="{{ route('inventories.destroy', $item->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger btn-sm"
+                                onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" class="text-center">Data kosong</td>
+                </tr>
+            @endforelse
         </tbody>
-      </table>
+    </table>
 
-      <div class="d-flex justify-content-center mt-3">
-        {{ $inventories->links() }}
-      </div>
-    </div>
-  </div>
+    {{ $inventories->links() }}
 </div>
 @endsection
