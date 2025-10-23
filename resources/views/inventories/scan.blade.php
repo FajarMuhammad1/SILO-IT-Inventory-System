@@ -1,215 +1,127 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <h4 class="mb-3"><i class="fas fa-barcode me-2"></i> Scan Barcode</h4>
+<div class="container text-center">
+    <h3 class="mb-3">Scan Barcode Barang</h3>
 
-    {{-- Pesan sukses / error --}}
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
-    <div class="row gy-3">
-        <!-- Manual / Keyboard scanner input -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">Masukan Barcode (keyboard scanner atau ketik manual)</div>
-                <div class="card-body">
-                    <form id="scanForm" method="POST" action="{{ route('inventories.scanSubmit') }}">
-                        @csrf
-                        <div class="mb-2">
-                            <label for="barcode" class="form-label">Barcode</label>
-                            <input type="text" id="barcode" name="barcode"
-                                   class="form-control" autocomplete="off"
-                                   placeholder="Contoh: INV-ABC12345" required>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Cari</button>
-                            <button type="button" id="clearInput" class="btn btn-outline-secondary">Bersihkan</button>
-                        </div>
-
-                        @error('barcode')
-                            <div class="text-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </form>
-
-                    <small class="text-muted d-block mt-2">
-                        Jika memakai barcode scanner fisik, arahkan kursor ke field di atas lalu scan — form akan otomatis berisi nilai scanner.
-                    </small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Camera scanner (BarcodeDetector API) -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">Scan Menggunakan Kamera (browser modern)</div>
-                <div class="card-body">
-                    <div id="camera-area" class="text-center">
-                        <video id="video" playsinline style="width:100%;max-height:360px;border-radius:6px;background:#000;"></video>
-                        <canvas id="canvas" style="display:none;"></canvas>
-
-                        <div class="mt-2 d-flex justify-content-center gap-2">
-                            <button id="startCamera" class="btn btn-success">Mulai Kamera</button>
-                            <button id="stopCamera" class="btn btn-danger" disabled>Stop</button>
-                            <button id="oneShot" class="btn btn-secondary">Scan Sekali</button>
-                        </div>
-
-                        <div class="mt-3">
-                            <div id="detectResult" class="fw-semibold"></div>
-                        </div>
-
-                        <small class="text-muted d-block mt-2">
-                            Catatan: fitur kamera membutuhkan browser yang mendukung <code>BarcodeDetector</code> atau halaman disajikan lewat HTTPS (localhost OK).
-                        </small>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="position-relative d-inline-block">
+        <video id="camera" autoplay playsinline width="600" height="400" style="border:2px solid #ccc; border-radius:10px;"></video>
+        <canvas id="overlay" width="600" height="400"
+            style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
     </div>
+
+    <div class="mt-3" id="result" class="text-center"></div>
 </div>
-@endsection
 
-{{-- ✅ Script dipindahkan ke section "scripts" --}}
-@section('scripts')
+<audio id="beep-sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Fokus input supaya keyboard scanner langsung menempel
-    const barcodeInput = document.getElementById('barcode');
-    barcodeInput.focus();
+document.addEventListener('DOMContentLoaded', async () => {
+    const video = document.getElementById('camera');
+    const overlay = document.getElementById('overlay');
+    const ctx = overlay.getContext('2d');
+    const beep = document.getElementById('beep-sound');
+    const result = document.getElementById('result');
 
-    // Tombol clear input
-    document.getElementById('clearInput').addEventListener('click', () => {
-        barcodeInput.value = '';
-        barcodeInput.focus();
-    });
-
-    // Auto-submit jika scanner kirim Enter
-    barcodeInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('scanForm').submit();
-        }
-    });
-
-    // ======================
-    // CAMERA SCANNER LOGIC
-    // ======================
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const startBtn = document.getElementById('startCamera');
-    const stopBtn = document.getElementById('stopCamera');
-    const oneShotBtn = document.getElementById('oneShot');
-    const detectResult = document.getElementById('detectResult');
-
-    let stream = null;
-    let detector = null;
-    let scanning = false;
-    let rafId = null;
-
-    // Cek dukungan BarcodeDetector
-    async function isBarcodeDetectorSupported() {
-        if ('BarcodeDetector' in window) {
-            try {
-                const formats = await BarcodeDetector.getSupportedFormats();
-                return formats && formats.length > 0;
-            } catch {
-                return false;
-            }
-        }
-        return false;
+    // ✅ 1. Pastikan kamera jalan dulu
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: 600, height: 400 }
+        });
+        video.srcObject = stream;
+        await new Promise(r => video.onloadedmetadata = r);
+        console.log('✅ Kamera aktif');
+    } catch (err) {
+        alert('❌ Kamera gagal diakses: ' + err.message);
+        return;
     }
 
-    async function startCamera() {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-            video.srcObject = stream;
-            await video.play();
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            scanning = true;
-
-            if (await isBarcodeDetectorSupported()) {
-                detector = new BarcodeDetector({
-                    formats: ['code_128', 'code_39', 'ean_13', 'qr_code', 'codabar', 'data_matrix']
-                });
-                tick();
-            } else {
-                detectResult.innerText = 'Browser tidak mendukung BarcodeDetector. Gunakan input manual.';
+    // ✅ 2. Mulai Quagga setelah video benar-benar tampil
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: video,
+            constraints: {
+                facingMode: "user", // kamera depan laptop
+                width: 600,
+                height: 400
             }
-        } catch (err) {
+        },
+        decoder: {
+            readers: ["code_128_reader"] // barcode garis
+        },
+        locate: true
+    }, (err) => {
+        if (err) {
             console.error(err);
-            alert('Gagal mengakses kamera: ' + err.message);
+            alert("Gagal memulai scanner: " + err.message);
+            return;
         }
-    }
+        Quagga.start();
+        console.log("📷 Quagga dimulai");
+    });
 
-    function stopCameraFunc() {
-        scanning = false;
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        if (stream) {
-            stream.getTracks().forEach(t => t.stop());
-            stream = null;
-        }
-        if (rafId) {
-            cancelAnimationFrame(rafId);
-            rafId = null;
-        }
-    }
-
-    async function tick() {
-        if (!scanning || !detector) return;
-        try {
-            const detections = await detector.detect(video);
-            if (detections && detections.length) {
-                const code = detections[0].rawValue || detections[0].value;
-                handleDetectedBarcode(code);
-            }
-        } catch (err) {
-            console.error('detect error', err);
-        }
-        rafId = requestAnimationFrame(tick);
-    }
-
-    function handleDetectedBarcode(code) {
-        if (!code) return;
-        detectResult.innerHTML = `<span class="text-success">Terdeteksi: </span><strong>${code}</strong>`;
-        barcodeInput.value = code;
-        setTimeout(() => document.getElementById('scanForm').submit(), 400);
-    }
-
-    oneShotBtn.addEventListener('click', async function () {
-        if (!stream) return alert('Kamera belum berjalan.');
-        if (!('BarcodeDetector' in window)) return alert('Browser tidak mendukung BarcodeDetector.');
-        try {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const bitmap = await createImageBitmap(canvas);
-            const det = new BarcodeDetector({ formats: ['code_128', 'code_39', 'ean_13', 'qr_code', 'codabar', 'data_matrix'] });
-            const results = await det.detect(bitmap);
-            if (results.length) {
-                handleDetectedBarcode(results[0].rawValue || results[0].value);
-            } else {
-                detectResult.innerHTML = `<span class="text-danger">Tidak terdeteksi. Coba lagi.</span>`;
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Error saat scan: ' + err.message);
+    // ✅ 3. Gambar garis hijau saat deteksi
+    Quagga.onProcessed((data) => {
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+        if (data && data.boxes) {
+            data.boxes.filter(b => b !== data.box).forEach(box => {
+                ctx.beginPath();
+                ctx.strokeStyle = "lime";
+                ctx.lineWidth = 2;
+                ctx.moveTo(box[0][0], box[0][1]);
+                for (let i = 1; i < box.length; i++) {
+                    ctx.lineTo(box[i][0], box[i][1]);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            });
         }
     });
 
-    startBtn.addEventListener('click', startCamera);
-    stopBtn.addEventListener('click', stopCameraFunc);
+    // ✅ 4. Saat barcode terbaca
+    Quagga.onDetected((resultData) => {
+        const code = resultData.codeResult.code;
+        console.log('📦 Barcode:', code);
+        beep.play();
 
-    // Stop kamera ketika keluar halaman
-    window.addEventListener('beforeunload', () => {
-        if (stream) stream.getTracks().forEach(t => t.stop());
+        result.innerHTML = `<div class="alert alert-info">Membaca barcode <b>${code}</b>...</div>`;
+
+        fetch("{{ route('inventories.checkBarcode') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ barcode: code })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.found) {
+                result.innerHTML = `
+                    <div class="alert alert-success text-start">
+                        <strong>Barang Ditemukan!</strong><br>
+                        <b>Nama:</b> ${data.inventory.nama_barang}<br>
+                        <b>Kategori:</b> ${data.inventory.kategori}<br>
+                        <b>Tipe:</b> ${data.inventory.tipe_barang}<br>
+                        <b>Jumlah:</b> ${data.inventory.jumlah}<br>
+                        <b>Kode Unik:</b> ${data.inventory.barcode}<br>
+                        <b>Status:</b> ${data.match ? '✅ Sesuai dengan Barcode' : '❌ Tidak Sesuai'}
+                    </div>`;
+            } else {
+                result.innerHTML = `<div class="alert alert-danger">❌ Barcode ${code} tidak ditemukan.</div>`;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            result.innerHTML = `<div class="alert alert-warning">Gagal memeriksa barcode: ${err.message}</div>`;
+        });
+
+        // Hentikan sementara agar tidak baca berulang
+        Quagga.pause();
+        setTimeout(() => Quagga.start(), 4000);
     });
 });
 </script>

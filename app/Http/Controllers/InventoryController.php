@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
+use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
 
 class InventoryController extends Controller
 {
@@ -22,7 +23,7 @@ class InventoryController extends Controller
     public function show($id)
     {
         $inventory = Inventory::findOrFail($id);
-
+          $barcode = DNS1D::getBarcodeHTML($inventory->barcode, 'C128', 2, 60);
         // Catat aktivitas melihat detail barang
         ActivityLog::create([
             'user_id' => Auth::id(),
@@ -31,7 +32,7 @@ class InventoryController extends Controller
             'user_agent' => request()->userAgent(),
         ]);
 
-        return view('inventories.show', compact('inventory'));
+        return view('inventories.show', compact('inventory','barcode'));
     }
 
     /** Form tambah data baru */
@@ -151,6 +152,24 @@ public function scan()
 {
     return view('inventories.scan');
 }
+
+public function checkBarcode(Request $request)
+{
+    $barcode = $request->input('barcode');
+    $inventory = \App\Models\Inventory::where('barcode', $barcode)->first();
+
+    if ($inventory) {
+        return response()->json([
+            'found' => true,
+            'match' => $inventory->barcode === $barcode,
+            'inventory' => $inventory,
+        ]);
+    }
+
+    return response()->json(['found' => false]);
+}
+
+
 
 /** Proses hasil scan barcode */
 public function scanSubmit(Request $request)

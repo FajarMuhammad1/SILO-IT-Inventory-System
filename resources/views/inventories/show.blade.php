@@ -36,10 +36,15 @@
         <th>Kategori</th>
         <td>{{ $inventory->kategori ?? '-' }}</td>
     </tr>
-    <tr>
-        <th>Barcode</th>
-        <td>{{ $inventory->barcode }}</td>
-    </tr>
+    @php
+    use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
+@endphp
+
+<div class="text-center mt-3">
+    {!! DNS1D::getBarcodeHTML($inventory->barcode, 'C128', 2, 60) !!}
+    <p>{{ $inventory->barcode }}</p>
+</div>
+
     <tr>
         <th>Jumlah</th>
         <td>{{ $inventory->jumlah }}</td>

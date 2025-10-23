@@ -21,15 +21,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // DASHBOARD (ambil dari InventoryController atau DashboardController, pilih salah satu)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // INVENTORY CRUD
-    Route::resource('inventories', InventoryController::class);
-    Route::resource('inventories', App\Http\Controllers\InventoryController::class);
+// FITUR SCAN BARCODE
+Route::get('/inventories/scan', [InventoryController::class, 'scan'])->name('inventories.scan');
+Route::post('/inventories/scan', [InventoryController::class, 'scanSubmit'])->name('inventories.scanSubmit');
+Route::post('/inventories/check-barcode', [App\Http\Controllers\InventoryController::class, 'checkBarcode'])
+    ->name('inventories.checkBarcode');
 
 
-    // FITUR SCAN BARCODE
-    Route::get('/inventories/scan', [InventoryController::class, 'scan'])->name('inventories.scan');
-    Route::post('/inventories/scan', [InventoryController::class, 'scanSubmit'])->name('inventories.scanSubmit');
-    Route::get('/inventories/show-barcode/{barcode}', [InventoryController::class, 'showByBarcode'])->name('inventories.showByBarcode');
+
+// CRUD Inventory
+Route::resource('inventories', InventoryController::class);
+
 
     // LOG AKTIVITAS (pakai controller beneran)
   Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
