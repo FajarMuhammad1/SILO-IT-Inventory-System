@@ -1,16 +1,18 @@
-@extends('layouts.sbadmin')
+@extends('layouts.auth')
+
+@section('title', 'Register - Sistem Inventaris IT')
 
 @section('content')
-<div class="container">
     <div class="row justify-content-center align-items-center" style="height: 100vh">
-        <div class="col-lg-6">
+        <div class="col-lg-5">
             <div class="card shadow-lg border-0 rounded-lg">
                 <div class="card-header text-center">
                     <div class="text-center mb-3">
-                       <img src="{{ asset('assets/img/images.png') }}" alt="Logo IT" width="150">
+                        <img src="{{ asset('assets/img/images.png') }}" alt="Logo IT" width="150">
                     </div>
                     <h4 class="text-gray-900 font-weight-bold">Daftar Akun IT Support</h4>
                 </div>
+
                 <div class="card-body">
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
@@ -36,7 +38,7 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <button type="submit" class="btn btn-success btn-block">Daftar</button>
+                            <button type="submit" class="btn btn-primary btn-block">Daftar</button>
                         </div>
 
                         <div class="text-center">
@@ -47,5 +49,4 @@
             </div>
         </div>
     </div>
-</div>
 @endsection

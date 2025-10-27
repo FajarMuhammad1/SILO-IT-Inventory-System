@@ -27,13 +27,13 @@
         Inventory
     </div>
 
-    <!-- Nav Item - Scan -->
-    <li class="nav-item {{ request()->is('scan') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ url('/scan') }}">
-            <i class="fas fa-barcode"></i>
-            <span>Scan Barcode</span>
-        </a>
-    </li>
+    <li class="nav-item {{ request()->is('inventories/scan') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('inventories.scan') }}">
+        <i class="fas fa-barcode"></i>
+        <span>Scan Barcode</span>
+    </a>
+</li>
+
 
     <!-- Nav Item - Data Barang -->
     <li class="nav-item {{ request()->is('inventories*') ? 'active' : '' }}">

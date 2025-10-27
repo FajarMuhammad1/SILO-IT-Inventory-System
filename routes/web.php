@@ -31,6 +31,9 @@ Route::post('/inventories/check-barcode', [App\Http\Controllers\InventoryControl
 
 // CRUD Inventory
 Route::resource('inventories', InventoryController::class);
+Route::get('/inventories/{id}/download-barcode', [InventoryController::class, 'downloadBarcode'])
+    ->name('inventories.downloadBarcode');
+
 
 
     // LOG AKTIVITAS (pakai controller beneran)

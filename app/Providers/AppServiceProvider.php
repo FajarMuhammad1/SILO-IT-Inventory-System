@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
         // Tambahkan alias barcode
         $loader = AliasLoader::getInstance();
         $loader->alias('DNS1D', DNS1DFacade::class);
-        $loader->alias('DNS2D', DNS2DFacade::class);
+     
     }
 
     /**

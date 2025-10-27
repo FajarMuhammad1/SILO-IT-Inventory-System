@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -50,7 +51,13 @@ class User extends Authenticatable
         return $this->hasMany(ActivityLog::class);
     }
 
-    // 🔹 Tambahkan helper role di sini
+    // ✅ Tambahkan relasi ke HelpdeskMonitoring
+    public function helpdeskMonitorings()
+    {
+        return $this->hasMany(HelpdeskMonitoring::class);
+    }
+
+    // 🔹 Helper role
     public function isAdmin()
     {
         return $this->role === 'admin';
