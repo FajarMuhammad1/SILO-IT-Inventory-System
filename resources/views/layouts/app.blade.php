@@ -65,6 +65,18 @@
                 </a>
             </li>
 
+                      <!-- Helpdesk Monitoring -->
+    @auth
+        @if(Auth::user()->isAdmin() || Auth::user()->isStaff())
+            <li class="nav-item {{ request()->is('helpdesk*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('helpdesk.index') }}">
+                    <i class="fas fa-headset"></i>
+                    <span>Helpdesk Monitoring</span>
+                </a>
+            </li>
+        @endif
+    @endauth
+
             <!-- Nav Item - Activity Log -->
             <li class="nav-item {{ request()->is('activity-logs*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('activity-logs.index') }}">
@@ -72,6 +84,8 @@
                     <span>Activity Log</span>
                 </a>
             </li>
+
+   
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">

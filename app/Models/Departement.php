@@ -9,10 +9,13 @@ class Departement extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nama_departement'];
+    protected $fillable = [
+        'nama',
+        'kode',
+    ];
 
-    public function helpdeskMonitorings()
+    public function helpdesks()
     {
-        return $this->hasMany(HelpdeskMonitoring::class, 'departement_id');
+        return $this->hasMany(HelpdeskMonitoring::class);
     }
 }
