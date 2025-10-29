@@ -51,7 +51,18 @@
         </a>
     </li>
 
-    <!-- Helpdesk Monitoring -->
+   
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Helpdesk Monitoring System
+    </div>
+
+
+     <!-- Helpdesk Monitoring -->
     @auth
         @if(Auth::user()->isAdmin() || Auth::user()->isStaff())
             <li class="nav-item {{ request()->is('helpdesk*') ? 'active' : '' }}">
@@ -63,42 +74,8 @@
         @endif
     @endauth
 
-    <!-- Divider -->
-    <hr class="sidebar-divider">
 
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Departemen
-    </div>
 
-    @php
-        use App\Models\Departement;
-        $departements = Departement::all();
-    @endphp
-
-    <li class="nav-item">
-        <a class="nav-link d-flex align-items-center collapsed" data-bs-toggle="collapse" href="#departementMenu" role="button" aria-expanded="false" aria-controls="departementMenu">
-            <i class="fas fa-building"></i>
-            <span>Daftar Departemen</span>
-        </a>
-
-        <div class="collapse" id="departementMenu" data-bs-parent="#accordionSidebar">
-            <ul class="nav flex-column ms-4 mt-2">
-                @forelse ($departements as $dept)
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('departements.show') && request()->route('id') == $dept->id ? 'active fw-bold text-primary' : '' }}"
-                           href="{{ route('departements.show', $dept->id) }}">
-                            <i class="fas fa-angle-right small me-1"></i> {{ $dept->nama_departement }}
-                        </a>
-                    </li>
-                @empty
-                    <li class="nav-item">
-                        <span class="text-muted ms-3">Belum ada departemen</span>
-                    </li>
-                @endforelse
-            </ul>
-        </div>
-    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">

@@ -12,60 +12,81 @@ class HelpdeskMonitoringController extends Controller
     /**
      * Tampilkan semua data Helpdesk Monitoring
      */
-    public function index()
-    {
-        // Pastikan user login
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
-        if (Auth::user()->role === 'admin') {
-            // Admin bisa melihat semua laporan
-            $helpdesks = HelpdeskMonitoring::with(['user', 'departement'])
-                ->latest()
-                ->paginate(10);
-        } else {
-            // Staff hanya melihat laporan miliknya
-            $helpdesks = HelpdeskMonitoring::where('user_id', Auth::id())
-                ->with(['user', 'departement'])
-                ->latest()
-                ->paginate(10);
-        }
-
-        return view('helpdesk.index', compact('helpdesks'));
+   public function index(Request $request)
+{
+    // Pastikan user login
+    if (!Auth::check()) {
+        return redirect()->route('login');
     }
+
+    $query = HelpdeskMonitoring::with(['user', 'departement']);
+
+    // Filter berdasarkan departemen
+    if ($request->filled('departement_id')) {
+        $query->where('departement_id', $request->departement_id);
+    }
+
+    // Filter berdasarkan status
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Pencarian berdasarkan user name atau deskripsi
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->whereHas('user', function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%");
+        })->orWhere('deskripsi', 'like', "%{$search}%");
+    }
+
+    // Admin bisa melihat semua laporan, staff hanya miliknya
+    if (Auth::user()->role !== 'admin') {
+        $query->where('user_id', Auth::id());
+    }
+
+    $helpdesks = $query->latest()->paginate(10);
+    $departements = Departement::all();
+
+    return view('helpdesk.index', compact('helpdesks', 'departements'));
+}
+
+
+    
 
     /**
      * Tampilkan form tambah laporan baru
      */
-    public function create()
-    {
-        $departements = Departement::all();
-        return view('helpdesk.create', compact('departements'));
-    }
+   public function create()
+{
+    $departements = Departement::all(); // ambil semua departemen
+    return view('helpdesk.create', compact('departements'));
+}
 
     /**
      * Simpan data laporan baru
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'tanggal' => 'required|date|before_or_equal:today',
-            'departement_id' => 'required|exists:departements,id',
-            'deskripsi' => 'required|string|max:500',
-        ]);
+{
+    $request->validate([
+        'tanggal' => 'required|date|before_or_equal:today',
+        'pengguna' => 'required|string|max:255',
+        'departement_id' => 'required|exists:departements,id',
+        'deskripsi' => 'required|string|max:500',
+    ]);
 
-        HelpdeskMonitoring::create([
-            'tanggal' => $request->tanggal,
-            'user_id' => Auth::id(),
-            'departement_id' => $request->departement_id,
-            'deskripsi' => $request->deskripsi,
-            'status' => 'open',
-            'pic' => null,
-        ]);
+    HelpdeskMonitoring::create([
+        'tanggal' => $request->tanggal,
+        'pengguna' => $request->pengguna, // disimpan manual
+        'user_id' => Auth::id(), // masih bisa disimpan untuk tracking admin
+        'departement_id' => $request->departement_id,
+        'deskripsi' => $request->deskripsi,
+        'status' => 'open',
+        'pic' => null,
+    ]);
 
-        return redirect()->route('helpdesk.index')->with('success', 'Laporan berhasil dibuat.');
-    }
+    return redirect()->route('helpdesk.index')->with('success', 'Laporan berhasil dibuat.');
+}
+
 
     /**
      * Edit laporan

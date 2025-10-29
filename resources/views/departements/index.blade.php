@@ -1,66 +1,46 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <h2 class="mb-4">
-        <i class="bi bi-building"></i> Daftar Departemen
-    </h2>
+<div class="container">
+    <h1 class="mb-3">Daftar Departemen</h1>
 
-    {{-- Tombol Tambah Departemen --}}
-    <div class="mb-3">
-        <a href="{{ route('departements.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Tambah Departemen
-        </a>
-    </div>
-
-    {{-- Notifikasi --}}
     @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    {{-- Tabel Departemen --}}
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th width="5%">No</th>
-                        <th>Nama Departemen</th>
-                        <th width="25%">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($departements as $index => $dept)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $dept->nama_departement }}</td>
-                            <td>
-                                <a href="{{ route('departements.show', $dept) }}" class="btn btn-info btn-sm">
-                                    <i class="bi bi-eye"></i> Detail
-                                </a>
-                                <a href="{{ route('departements.edit', $dept) }}" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil"></i> Edit
-                                </a>
-                                <form action="{{ route('departements.destroy', $dept) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus departemen ini?')">
-                                        <i class="bi bi-trash"></i> Hapus
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">Belum ada departemen yang ditambahkan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <a href="{{ route('departements.create') }}" class="btn btn-primary mb-3">
+        <i class="fas fa-plus"></i> Tambah Departemen
+    </a>
+
+    <table class="table table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th>#</th>
+                <th>Nama Departemen</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($departements as $dept)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $dept->nama_departement }}</td>
+                    <td>
+                        <a href="{{ route('departements.show', $dept->id) }}" class="btn btn-info btn-sm">Lihat</a>
+                        <a href="{{ route('departements.edit', $dept->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="{{ route('departements.destroy', $dept->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Hapus departemen ini?')" class="btn btn-danger btn-sm">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="3" class="text-center">Belum ada data departemen</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 @endsection

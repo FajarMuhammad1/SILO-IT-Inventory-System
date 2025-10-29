@@ -1,32 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="bi bi-pencil"></i> Edit Departemen</h2>
+<div class="container">
+    <h1>Edit Departemen</h1>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form action="{{ route('departements.update', $departement) }}" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="mb-3">
-                    <label for="nama_departement" class="form-label">Nama Departemen</label>
-                    <input type="text" name="nama_departement" id="nama_departement"
-                           class="form-control @error('nama_departement') is-invalid @enderror"
-                           value="{{ old('nama_departement', $departement->nama_departement) }}" required>
-                    @error('nama_departement')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+    <form action="{{ route('departements.update', $departement->id) }}" method="POST">
+        @csrf
+        @method('PUT')
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Perbarui
-                </button>
-                <a href="{{ route('departements.index') }}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Kembali
-                </a>
-            </form>
+        <div class="mb-3">
+            <label for="nama_departement" class="form-label">Nama Departemen</label>
+            <input type="text" name="nama_departement" class="form-control" id="nama_departement"
+                   value="{{ $departement->nama_departement }}" required>
         </div>
-    </div>
+
+        <button type="submit" class="btn btn-primary">Perbarui</button>
+        <a href="{{ route('departements.index') }}" class="btn btn-secondary">Kembali</a>
+    </form>
 </div>
 @endsection

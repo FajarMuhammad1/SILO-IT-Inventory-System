@@ -42,14 +42,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // HELP DESK MONITORING (PAKAI RESOURCE SAJA)
     Route::resource('helpdesk', HelpdeskMonitoringController::class);
+});
 
-    // DEPARTEMENT DETAIL VIEW
+
+ // DEPARTEMENT DETAIL VIEW
 Route::get('/departements/{id}', [App\Http\Controllers\DepartementController::class, 'show'])
     ->name('departements.show');
 
-
-
-});
 
 // =========================
 //  AUTENTIKASI (BREEZE/JETSTREAM)

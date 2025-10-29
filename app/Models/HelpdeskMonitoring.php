@@ -9,24 +9,28 @@ class HelpdeskMonitoring extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'tanggal',
-        'user_id',
-        'departement_id',
-        'deskripsi',
-        'status',
-        'pic',
-    ];
+protected $fillable = [
+    'tanggal',
+    'pengguna',
+    'departement_id',
+    'deskripsi',
+    'status',
+    'pic',
+    'user_id',
+];
+
+
 
     // Relasi ke user (admin atau staff)
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'user_id');
     }
 
     // Relasi ke departemen
-    public function departement()
-    {
-        return $this->belongsTo(Departement::class);
-    }
+   public function departement()
+{
+    return $this->belongsTo(Departement::class);
+}
+
 }

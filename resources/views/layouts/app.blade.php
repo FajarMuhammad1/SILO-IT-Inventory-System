@@ -65,7 +65,17 @@
                 </a>
             </li>
 
-                      <!-- Helpdesk Monitoring -->
+   
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Helpdesk Monitoring System
+    </div>
+
+
+     <!-- Helpdesk Monitoring -->
     @auth
         @if(Auth::user()->isAdmin() || Auth::user()->isStaff())
             <li class="nav-item {{ request()->is('helpdesk*') ? 'active' : '' }}">
@@ -77,7 +87,19 @@
         @endif
     @endauth
 
-            <!-- Nav Item - Activity Log -->
+
+
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+   
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+
+             <!-- Nav Item - Activity Log -->
             <li class="nav-item {{ request()->is('activity-logs*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('activity-logs.index') }}">
                     <i class="fas fa-list"></i>
@@ -85,10 +107,6 @@
                 </a>
             </li>
 
-   
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Logout -->
             <li class="nav-item">
