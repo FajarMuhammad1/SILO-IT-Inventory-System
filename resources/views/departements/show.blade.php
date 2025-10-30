@@ -2,13 +2,27 @@
 
 @section('content')
 <div class="container">
-    <h1>Detail Departemen</h1>
-    <div class="card mt-3">
-        <div class="card-body">
-            <h4>{{ $departement->nama_departement }}</h4>
-            <p>Dibuat pada: {{ $departement->created_at->format('d M Y H:i') }}</p>
-        </div>
-    </div>
-    <a href="{{ route('departements.index') }}" class="btn btn-secondary mt-3">Kembali</a>
+    <h1>Detail Departement</h1>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>ID</th>
+            <td>{{ $departement->id }}</td>
+        </tr>
+        <tr>
+            <th>Nama Departement</th>
+            <td>{{ $departement->nama_departement }}</td>
+        </tr>
+        <tr>
+            <th>Jabatan</th>
+            <td>{{ $departement->jabatan }}</td>
+        </tr>
+        <tr>
+            <th>Perusahaan</th>
+            <td>{{ $departement->perusahaan }}</td>
+        </tr>
+    </table>
+
+    <a href="{{ route('departements.index') }}" class="btn btn-secondary">Kembali</a>
 </div>
 @endsection

@@ -2,44 +2,41 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mb-3">Daftar Departemen</h1>
+    <h3 class="mb-3">Daftar Departemen</h3>
 
-    @if (session('success'))
+    @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <a href="{{ route('departements.create') }}" class="btn btn-primary mb-3">
-        <i class="fas fa-plus"></i> Tambah Departemen
-    </a>
+    <a href="{{ route('departements.create') }}" class="btn btn-primary mb-3">+ Tambah Departemen</a>
 
     <table class="table table-bordered">
-        <thead class="table-primary">
+        <thead class="table-dark">
             <tr>
-                <th>#</th>
+                <th>No</th>
                 <th>Nama Departemen</th>
+                <th>Jabatan</th>
+                <th>Perusahaan</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
-            @forelse ($departements as $dept)
+            @foreach($departements as $d)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $dept->nama_departement }}</td>
+                    <td>{{ $d->nama_departement }}</td>
+                    <td>{{ $d->jabatan ?? '-' }}</td>
+                    <td>{{ $d->perusahaan ?? '-' }}</td>
                     <td>
-                        <a href="{{ route('departements.show', $dept->id) }}" class="btn btn-info btn-sm">Lihat</a>
-                        <a href="{{ route('departements.edit', $dept->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('departements.destroy', $dept->id) }}" method="POST" class="d-inline">
+                        <a href="{{ route('departements.edit', $d->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ route('departements.destroy', $d->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus data ini?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" onclick="return confirm('Hapus departemen ini?')" class="btn btn-danger btn-sm">Hapus</button>
+                            <button class="btn btn-sm btn-danger">Hapus</button>
                         </form>
                     </td>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="3" class="text-center">Belum ada data departemen</td>
-                </tr>
-            @endforelse
+            @endforeach
         </tbody>
     </table>
 </div>

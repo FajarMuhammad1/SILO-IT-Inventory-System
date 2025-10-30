@@ -9,13 +9,19 @@ class Departement extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'nama',
-        'kode',
-    ];
+    protected $table = 'departements'; //  opsional jika plural default sudah sesuai
+   protected $fillable = ['nama_departement', 'jabatan', 'perusahaan'];
 
-    public function helpdesks()
+
+    public function helpdeskMonitorings()
     {
-        return $this->hasMany(HelpdeskMonitoring::class);
+        return $this->hasMany(HelpdeskMonitoring::class, 'departement_id');
     }
+
+    public function ppiRequests()
+{
+    return $this->hasMany(PpiRequest::class);
 }
+
+}
+

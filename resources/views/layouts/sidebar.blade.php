@@ -79,6 +79,24 @@
 
     <!-- Divider -->
     <hr class="sidebar-divider">
+    <li class="nav-item">
+    <a class="nav-link" href="{{ route('ppi.index') }}">
+        <i class="fas fa-file-alt"></i>
+        <span>PPI Request</span>
+    </a>
+</li>
+
+<li class="nav-item {{ request()->is('departements*') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('departements.index') }}">
+        <i class="fas fa-building"></i>
+        <span>Departemen</span>
+    </a>
+</li>
+
+  <!-- Divider -->
+    <hr class="sidebar-divider">
+
+
 
     <!-- Activity Log -->
     <li class="nav-item {{ request()->is('activity-logs*') ? 'active' : '' }}">
