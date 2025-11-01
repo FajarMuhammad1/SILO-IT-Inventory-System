@@ -37,6 +37,15 @@
                             <input type="password" name="password_confirmation" class="form-control" required>
                         </div>
 
+                        <div class="form-group mb-2">
+    <label>Role</label>
+    <select name="role" class="form-control" required>
+        <option value="staff" selected>Staff</option>
+        <option value="admin">Admin</option>
+    </select>
+</div>
+
+
                         <div class="form-group mb-3">
                             <button type="submit" class="btn btn-primary btn-block">Daftar</button>
                         </div>

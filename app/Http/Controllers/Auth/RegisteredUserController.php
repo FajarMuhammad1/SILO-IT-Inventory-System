@@ -30,22 +30,31 @@ class RegisteredUserController extends Controller
    public function store(Request $request): RedirectResponse
 {
     $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    ]);
+    'name' => ['required', 'string', 'max:255'],
+    'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+    'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    'role' => ['required', 'in:admin,staff'], // validasi role
+]);
+
 
     $user = User::create([
-        'name' => $request->name,
-        'email' => strtolower($request->email), // optional lowercase
-        'password' => Hash::make($request->password),
-        'role' => 'user', // wajib, karena DB membutuhkan
-    ]);
+    'name' => $request->name,
+    'email' => strtolower($request->email),
+    'password' => Hash::make($request->password),
+    'role' => $request->role, // ambil dari form
+]);
 
-    event(new Registered($user));
+  event(new Registered($user));
 
-    Auth::login($user);
+Auth::login($user);
 
-    return redirect()->route('dashboard');
+// Redirect berdasarkan role
+if ($user->role === 'admin') {
+    return redirect()->route('dashboard'); // dashboard admin
+} elseif ($user->role === 'staff') {
+    return redirect()->route('staff.dashboard'); // dashboard staff
+}
+
+return redirect()->route('dashboard'); // fallback
 }
 }
