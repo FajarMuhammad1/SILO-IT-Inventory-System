@@ -10,7 +10,7 @@ class Departement extends Model
     use HasFactory;
 
     protected $table = 'departements'; //  opsional jika plural default sudah sesuai
-   protected $fillable = ['nama_departement', 'jabatan', 'perusahaan'];
+   protected $fillable = ['nama_departement','user','jabatan', 'perusahaan'];
 
 
     public function helpdeskMonitorings()

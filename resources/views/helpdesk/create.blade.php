@@ -5,19 +5,42 @@
     <h4 class="mb-4">Buat Laporan Helpdesk</h4>
 
     <form action="{{ route('helpdesk.store') }}" method="POST">
-        @csrf
+    @csrf
 
-        <!-- Tanggal -->
-        <div class="mb-3">
-            <label for="tanggal" class="form-label">Tanggal</label>
-            <input type="date" name="tanggal" class="form-control" required>
-        </div>
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+       <div class="form-group mb-2">
+    <label>Tanggal</label>
+    <input type="date"
+           name="tanggal"
+           class="form-control"
+           value="{{ old('tanggal', date('Y-m-d')) }}"   {{-- default hari ini --}}
+           required>
+    @error('tanggal') <small class="text-danger">{{ $message }}</small> @enderror
+</div>
+
 
         <!-- Pengguna -->
         <div class="mb-3">
-            <label for="pengguna" class="form-label">Nama Pengguna / Pelapor</label>
-            <input type="text" name="pengguna" class="form-control" placeholder="Masukkan nama pelapor (misal: bambang)" required>
-        </div>
+    <label for="pengguna" class="form-label">Nama User / Pelapor</label>
+    <select name="pengguna" id="pengguna" class="form-control" required>
+        <option value="">-- Pilih Pengguna --</option>
+        @foreach ($departements as $dept)
+            @if ($dept->user) {{-- pastiin kolom user gak kosong --}}
+                <option value="{{ $dept->user }}">{{ $dept->user }}</option>
+            @endif
+        @endforeach
+    </select>
+</div>
+
 
         <!-- Departemen -->
         <div class="mb-3">
@@ -29,6 +52,12 @@
                 @endforeach
             </select>
         </div>
+        
+        <div class="mb-3">
+    <label for="pic" class="form-label">PIC</label>
+    <input type="text" name="pic" class="form-control" value="{{ old('pic') }}" required>
+</div>
+
 
         <!-- Deskripsi -->
         <div class="mb-3">

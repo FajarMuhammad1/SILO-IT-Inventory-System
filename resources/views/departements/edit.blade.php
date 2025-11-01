@@ -12,6 +12,10 @@
             <input type="text" name="nama_departement" class="form-control" value="{{ $departement->nama_departement }}" required>
         </div>
         <div class="form-group mb-2">
+            <label>User</label>
+            <input type="text" name="user" class="form-control" value="{{ $departement->user }}" >
+        </div>
+        <div class="form-group mb-2">
             <label>Jabatan</label>
             <input type="text" name="jabatan" class="form-control" value="{{ $departement->jabatan }}">
         </div>

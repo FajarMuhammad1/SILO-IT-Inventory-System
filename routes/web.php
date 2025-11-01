@@ -6,8 +6,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HelpdeskMonitoringController;
-use App\Http\Controllers\DepartementController;
-use App\Http\Controllers\PpiRequestController;
+use App\Http\Controllers\SuratJalanController;
 
 
 // =========================
@@ -43,11 +42,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // HELP DESK MONITORING (PAKAI RESOURCE SAJA)
-    Route::resource('helpdesk', HelpdeskMonitoringController::class);
+   Route::resource('helpdesk', HelpdeskMonitoringController::class);
+
 
     // PPI REQUESTS dan DEPARTEMENTS
- Route::resource('ppi', App\Http\Controllers\PPIRequestController::class)->middleware('auth');
-Route::resource('departements', App\Http\Controllers\DepartementController::class)->middleware('auth');
+    Route::resource('ppi', App\Http\Controllers\PPIRequestController::class)->middleware('auth');
+    Route::resource('departements', App\Http\Controllers\DepartementController::class)->middleware('auth');
+
+
+    Route::resource('suratjalan', SuratJalanController::class);
+
 
 
 

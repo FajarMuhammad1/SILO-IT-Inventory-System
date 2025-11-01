@@ -15,6 +15,7 @@
             <tr>
                 <th>No</th>
                 <th>Nama Departemen</th>
+                <th>User</th>
                 <th>Jabatan</th>
                 <th>Perusahaan</th>
                 <th>Aksi</th>
@@ -25,6 +26,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $d->nama_departement }}</td>
+                    <td>{{ $d->user ?? '-' }}</td>
                     <td>{{ $d->jabatan ?? '-' }}</td>
                     <td>{{ $d->perusahaan ?? '-' }}</td>
                     <td>

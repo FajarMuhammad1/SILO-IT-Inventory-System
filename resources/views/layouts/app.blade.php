@@ -22,110 +22,114 @@
                 <div class="sidebar-brand-text mx-3">IT Support</div>
             </a>
 
-            <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('/dashboard') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+            <!-- Dashboard -->
+            @auth
+                @if(Auth::user()->role == 'admin')
+                    <li class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('/dashboard') }}">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->role == 'staff')
+                    <li class="nav-item {{ request()->is('staff/dashboard') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('staff.dashboard') }}">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Dashboard Staff</span>
+                        </a>
+                    </li>
+                @endif
+            @endauth
 
-            <!-- Divider -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Inventory
-            </div>
+            <!-- Inventory Section -->
+            @if(Auth::user()->role == 'admin')
+                <div class="sidebar-heading">Inventory</div>
 
-            <!-- Nav Item - Scan -->
-            <li class="nav-item {{ request()->is('scan') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('/scan') }}">
-                    <i class="fas fa-barcode"></i>
-                    <span>Scan Barcode</span>
-                </a>
-            </li>
+                <li class="nav-item {{ request()->is('inventories/scan') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('inventories.scan') }}">
+                        <i class="fas fa-barcode"></i>
+                        <span>Scan Barcode</span>
+                    </a>
+                </li>
 
-            <!-- Nav Item - Data Barang -->
-            <li class="nav-item {{ request()->is('inventories*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('/inventories') }}">
-                    <i class="fas fa-database"></i>
-                    <span>Data Barang</span>
-                </a>
-            </li>
+                <li class="nav-item {{ request()->is('inventories*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ url('/inventories') }}">
+                        <i class="fas fa-database"></i>
+                        <span>Data Barang Masuk</span>
+                    </a>
+                </li>
 
-            <!-- Nav Item - Audit -->
-            <li class="nav-item {{ request()->is('audit') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('/audit') }}">
-                    <i class="fas fa-clipboard-check"></i>
-                    <span>Audit</span>
-                </a>
-            </li>
+                <li class="nav-item {{ request()->is('audit') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ url('/audit') }}">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Audit</span>
+                    </a>
+                </li>
+            @endif
 
-   
-    <!-- Divider -->
-    <hr class="sidebar-divider">
+            <hr class="sidebar-divider">
 
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Helpdesk Monitoring System
-    </div>
+            <!-- Helpdesk Monitoring System -->
+            <div class="sidebar-heading">Helpdesk Monitoring System</div>
+            @auth
+                @if(Auth::user()->role == 'admin')
+                    <li class="nav-item {{ request()->is('helpdesk*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('helpdesk.index') }}">
+                            <i class="fas fa-headset"></i>
+                            <span>Helpdesk Monitoring</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->role == 'staff')
+                    <li class="nav-item {{ request()->is('staff/helpdesk*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('staff.helpdesk.index') }}">
+                            <i class="fas fa-headset"></i>
+                            <span>Tiket Saya</span>
+                        </a>
+                    </li>
+                @endif
+            @endauth
 
+            <hr class="sidebar-divider">
 
-     <!-- Helpdesk Monitoring -->
-    @auth
-        @if(Auth::user()->isAdmin() || Auth::user()->isStaff())
-            <li class="nav-item {{ request()->is('helpdesk*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('helpdesk.index') }}">
-                    <i class="fas fa-headset"></i>
-                    <span>Helpdesk Monitoring</span>
-                </a>
-            </li>
-        @endif
-    @endauth
+            <!-- PPI & Departemen -->
+            @if(Auth::user()->role == 'admin')
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('ppi.index') }}">
+                        <i class="fas fa-file-alt"></i>
+                        <span>PPI Request</span>
+                    </a>
+                </li>
 
+                <li class="nav-item {{ request()->is('departements*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('departements.index') }}">
+                        <i class="fas fa-building"></i>
+                        <span>Departemen</span>
+                    </a>
+                </li>
 
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('suratjalan.index') }}">
+                        <i class="fas fa-truck"></i>
+                        <span>Informasi Surat Jalan</span>
+                    </a>
+                </li>
+            @endif
 
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-
-
-    
-
-    <li class="nav-item">
-    <a class="nav-link" href="{{ route('ppi.index') }}">
-        <i class="fas fa-file-alt"></i>
-        <span>PPI Request</span>
-    </a>
-</li>
-
-<li class="nav-item {{ request()->is('departements*') ? 'active' : '' }}">
-    <a class="nav-link" href="{{ route('departements.index') }}">
-        <i class="fas fa-building"></i>
-        <span>Departemen</span>
-    </a>
-</li>
-
- 
-   
-
-            <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-
-             <!-- Nav Item - Activity Log -->
-            <li class="nav-item {{ request()->is('activity-logs*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('activity-logs.index') }}">
-                    <i class="fas fa-list"></i>
-                    <span>Activity Log</span>
-                </a>
-            </li>
-
+            <!-- Activity Log -->
+            @if(Auth::user()->role == 'admin')
+                <li class="nav-item {{ request()->is('activity-logs*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('activity-logs.index') }}">
+                        <i class="fas fa-list"></i>
+                        <span>Activity Log</span>
+                    </a>
+                </li>
+            @endif
 
             <!-- Logout -->
             <li class="nav-item">
@@ -147,8 +151,6 @@
                 @yield('content')
             </div>
         </div>
-        
-
     </div>
 
     <!-- Tambahan style untuk efek hover dan active -->
@@ -174,7 +176,6 @@
         }
     </style>
 
-    <!-- Bootstrap & SB Admin Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

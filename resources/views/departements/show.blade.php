@@ -14,6 +14,10 @@
             <td>{{ $departement->nama_departement }}</td>
         </tr>
         <tr>
+            <th>User</th>
+            <td>{{ $departement->user }}</td>
+        </tr>
+        <tr>
             <th>Jabatan</th>
             <td>{{ $departement->jabatan }}</td>
         </tr>

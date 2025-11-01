@@ -19,9 +19,10 @@ class DepartementController extends Controller
     }
 
     public function store(Request $request)
-    {
+    {        
         $validated = $request->validate([
             'nama_departement' => 'required|string|max:150',
+            'user' => 'required|string|max:150',
             'jabatan' => 'nullable|string|max:150',
             'perusahaan' => 'nullable|string|max:150',
         ]);
@@ -45,6 +46,7 @@ class DepartementController extends Controller
     {
         $validated = $request->validate([
             'nama_departement' => 'required|string|max:150',
+            'user' => 'required|string|max:150',
             'jabatan' => 'nullable|string|max:150',
             'perusahaan' => 'nullable|string|max:150',
         ]);

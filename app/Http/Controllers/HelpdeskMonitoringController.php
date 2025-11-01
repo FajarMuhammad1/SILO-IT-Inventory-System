@@ -72,17 +72,19 @@ class HelpdeskMonitoringController extends Controller
         'pengguna' => 'required|string|max:255',
         'departement_id' => 'required|exists:departements,id',
         'deskripsi' => 'required|string|max:500',
+        'pic' => 'required|string|max:255',
     ]);
 
     HelpdeskMonitoring::create([
         'tanggal' => $request->tanggal,
-        'pengguna' => $request->pengguna, // disimpan manual
-        'user_id' => Auth::id(), // masih bisa disimpan untuk tracking admin
+        'pengguna' => $request->pengguna,
+        'user_id' => Auth::id(),
         'departement_id' => $request->departement_id,
         'deskripsi' => $request->deskripsi,
         'status' => 'open',
-        'pic' => null,
+        'pic' => $request->pic,
     ]);
+
 
     return redirect()->route('helpdesk.index')->with('success', 'Laporan berhasil dibuat.');
 }

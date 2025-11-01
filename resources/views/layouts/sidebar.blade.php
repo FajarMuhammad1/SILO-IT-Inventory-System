@@ -39,7 +39,7 @@
     <li class="nav-item {{ request()->is('inventories*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ url('/inventories') }}">
             <i class="fas fa-database"></i>
-            <span>Data Barang</span>
+            <span>Data Barang Masuk</span>
         </a>
     </li>
 
@@ -92,6 +92,14 @@
         <span>Departemen</span>
     </a>
 </li>
+
+    <li class="nav-item">
+    <a class="nav-link" href="{{ route('suratjalan.index') }}">
+        <i class="fas fa-truck"></i>
+        <span>Informasi Surat Jalan</span>
+    </a>
+</li>
+
 
   <!-- Divider -->
     <hr class="sidebar-divider">

@@ -55,83 +55,82 @@ class InventoryController extends Controller
     }
 
     /** Simpan data baru ke database + generate barcode image */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nama_barang' => 'required|string|max:255',
-            'kategori' => 'required|string|max:255',
-            'merk' => 'nullable|string|max:255',
-            'serial_number' => 'nullable|string|max:255',
-            'tipe_barang' => 'required|string',
-            'jumlah' => 'required|integer|min:1',
-            'tanggal_masuk' => 'required|date',
-            'po_number' => 'nullable|string|max:255',
-            'lokasi' => 'nullable|string|max:255',
-            'status' => 'required|in:ok,rusak,hilang,dipakai,baru',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+ /** Simpan data baru ke database + generate barcode image */
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'nama_barang' => 'required|string|max:255',
+        'kategori' => 'required|string|max:255',
+        'merk' => 'nullable|string|max:255',
+        'serial_number' => 'nullable|string|max:255',
+        'tipe_barang' => 'required|string',
+        'jumlah' => 'required|integer|min:1',
+        'tanggal_masuk' => 'required|date',
+        'po_number' => 'nullable|string|max:255',
+        'lokasi' => 'nullable|string|max:255',
+        'status' => 'required|in:ok,rusak,hilang,dipakai,baru',
+        'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
 
-        if ($request->hasFile('gambar')) {
-            $validated['gambar'] = $request->file('gambar')->store('inventories', 'public');
-        }
+    if ($request->hasFile('gambar')) {
+        $validated['gambar'] = $request->file('gambar')->store('inventories', 'public');
+    }
 
-        // Buat kode unik barcode
-        $barcodeCode = 'INV-' . strtoupper(Str::random(8));
-        $validated['barcode'] = $barcodeCode;
+    // 🔹 Custom kode unik barcode (3 huruf pertama dari nama_barang + nomor urut)
+    $prefix = strtoupper(substr(preg_replace('/\s+/', '', $request->nama_barang), 0, 3)); // contoh: "Monitor" → "MON"
+    $lastItem = Inventory::where('barcode', 'like', $prefix . '%')->latest('id')->first();
 
-        // Simpan data ke DB
-        $inventory = Inventory::create($validated);
+    if ($lastItem && preg_match('/\d+$/', $lastItem->barcode, $matches)) {
+        $lastNumber = intval($matches[0]);
+        $newNumber = $lastNumber + 1;
+    } else {
+        $newNumber = 1;
+    }
 
-        // --- 🔹 Simpan barcode ke folder public/barcodes ---
-        // --- 🔹 Simpan barcode ke folder public/barcodes ---
-$barcodeDir = public_path('barcodes');
-if (!file_exists($barcodeDir)) {
-    mkdir($barcodeDir, 0777, true);
+    $barcodeCode = $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT); // contoh: MTR0001
+    $validated['barcode'] = $barcodeCode;
+
+    // Simpan data ke DB
+    $inventory = Inventory::create($validated);
+
+    // --- 🔹 Simpan barcode ke folder public/barcodes ---
+    $barcodeDir = public_path('barcodes');
+    if (!file_exists($barcodeDir)) {
+        mkdir($barcodeDir, 0777, true);
+    }
+
+    $barcodePng = DNS1D::getBarcodePNG($barcodeCode, 'C128', 3, 100);
+    $barcodeImage = imagecreatefromstring(base64_decode($barcodePng));
+
+    $width = imagesx($barcodeImage);
+    $height = imagesy($barcodeImage);
+    $padding = 20;
+    $newWidth = $width + ($padding * 2);
+    $newHeight = $height + ($padding * 2);
+
+    $canvas = imagecreatetruecolor($newWidth, $newHeight);
+    $white = imagecolorallocate($canvas, 255, 255, 255);
+    imagefill($canvas, 0, 0, $white);
+    imagecopy($canvas, $barcodeImage, $padding, $padding, 0, 0, $width, $height);
+
+    $barcodePath = $barcodeDir . '/' . $barcodeCode . '.png';
+    imagepng($canvas, $barcodePath);
+
+    imagedestroy($canvas);
+    imagedestroy($barcodeImage);
+    // --------------------------------------------------
+
+    ActivityLog::create([
+        'user_id' => Auth::id(),
+        'activity' => 'Menambahkan barang: ' . $validated['nama_barang'],
+        'ip_address' => $request->ip(),
+        'user_agent' => $request->userAgent(),
+    ]);
+
+    return redirect()->route('inventories.show', $inventory->id)
+                     ->with('success', 'Barang berhasil ditambahkan dengan barcode: ' . $barcodeCode);
 }
 
-// Generate barcode PNG base64
-$barcodePng = DNS1D::getBarcodePNG($barcodeCode, 'C128', 3, 100);
-
-// Ubah base64 jadi gambar GD
-$barcodeImage = imagecreatefromstring(base64_decode($barcodePng));
-
-// Dapatkan ukuran barcode asli
-$width = imagesx($barcodeImage);
-$height = imagesy($barcodeImage);
-
-// Tambahkan padding putih di sekeliling barcode (20px di setiap sisi)
-$padding = 20;
-$newWidth = $width + ($padding * 2);
-$newHeight = $height + ($padding * 2);
-
-// Buat canvas putih baru
-$canvas = imagecreatetruecolor($newWidth, $newHeight);
-$white = imagecolorallocate($canvas, 255, 255, 255);
-imagefill($canvas, 0, 0, $white);
-
-// Tempelkan barcode ke tengah canvas
-imagecopy($canvas, $barcodeImage, $padding, $padding, 0, 0, $width, $height);
-
-// Simpan ke file .png
-$barcodePath = $barcodeDir . '/' . $barcodeCode . '.png';
-imagepng($canvas, $barcodePath);
-
-// Bersihkan dari memori
-imagedestroy($canvas);
-imagedestroy($barcodeImage);
-// --------------------------------------------------
-
-
-        ActivityLog::create([
-            'user_id' => Auth::id(),
-            'activity' => 'Menambahkan barang: ' . $validated['nama_barang'],
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
-
-        return redirect()->route('inventories.show', $inventory->id)
-                         ->with('success', 'Barang berhasil ditambahkan dan barcode disimpan!');
-    }
 
     /** Form edit barang */
     public function edit($id)

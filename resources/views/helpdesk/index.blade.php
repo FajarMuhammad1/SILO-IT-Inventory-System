@@ -62,7 +62,7 @@
                         <tr>
                             <th>#</th>
                             <th>Tanggal</th>
-                            <th>Pengguna</th>
+                            <th>User</th>
                             <th>Departemen</th>
                             <th>Deskripsi</th>
                             <th>Status</th>

@@ -15,8 +15,8 @@ protected $fillable = [
     'departement_id',
     'deskripsi',
     'status',
-    'pic',
     'user_id',
+    'pic'
 ];
 
 
@@ -30,7 +30,7 @@ protected $fillable = [
     // Relasi ke departemen
    public function departement()
 {
-    return $this->belongsTo(Departement::class);
+    return $this->belongsTo(Departement::class, 'departement_id');
 }
 
 }
